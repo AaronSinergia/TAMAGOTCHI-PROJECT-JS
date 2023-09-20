@@ -1,3 +1,26 @@
+let currentTamagotchiState = randomTamagotchiState();
+
+function randomTamagotchiState() {
+  const randomNum = Math.random();
+  return randomNum < 0.5 ? 'heNeedsFood' : 'heNeedsToDrink';
+}
+
+function changeTamagotchiState() {
+  const actions = randomTamagotchiState();
+
+  if (currentTamagotchiState === actions) {
+    currentTamagotchiState = actions;
+
+    if (actions === 'heNeedsFood') {
+      heNeedsFood();
+    } else {
+      heNeedstoDrink();
+    }
+  }
+}
+
+setInterval(changeTamagotchiState, 1000);
+
 function heNeedsFood() {
   const getPreElement = document.getElementsByTagName('pre')[0];
 
@@ -7,18 +30,16 @@ function heNeedsFood() {
            / \\
   `;
 }
-setTimeout(heNeedsFood, 3000);
 
 function heNeedstoDrink() {
   const getPreElement = document.getElementsByTagName('pre')[0];
 
   getPreElement.textContent = `
-            (0.o) ??
+            (o.0) ??
            /(🥛)\\
              / \\
     `;
 }
-setTimeout(heNeedstoDrink, 7000);
 
 const optionsBar = () => {
   const optionsDiv = document.createElement('div');
@@ -26,9 +47,10 @@ const optionsBar = () => {
   const buttonBarDrink = document.createElement('button');
   const buttonBarKeepCalm = document.createElement('button');
 
-  //   buttonBarEat.classList.add('food_button');
-  //   buttonBarDrink.classList.add('drink_button');
-  //   buttonBarKeepCalm.classList.add('keep_calm_button');
+  optionsDiv.classList.add('options_bar');
+  buttonBarEat.classList.add('food_button');
+  buttonBarDrink.classList.add('drink_button');
+  buttonBarKeepCalm.classList.add('keep_calm_button');
 
   buttonBarEat.textContent = 'Dame de Comer';
   buttonBarDrink.textContent = 'Dame de Beber';
@@ -39,39 +61,43 @@ const optionsBar = () => {
   optionsDiv.appendChild(buttonBarKeepCalm);
 
   buttonBarEat.addEventListener('click', function () {
-    const getPreElement = document.getElementsByTagName('pre')[0];
-
-    getPreElement.textContent = `
-                (o.-)
-              /(Full)\\
-                / \\  
-      `;
-
-    setTimeout(() => {
+    const errorElementMsg = document.getElementsByClassName('error-message')[0];
+    if (currentTamagotchiState === 'heNeedsFood') {
+      const getPreElement = document.getElementsByTagName('pre')[0];
       getPreElement.textContent = `
-        (0.o) ??
-       /(🥓)\\
-         / \\
-`;
-    }, 3000);
+                  (o.-)
+                /(Full)\\
+                  / \\  
+        `;
+      currentTamagotchiState = randomTamagotchiState();
+      if (heNeedstoDrink) errorElementMsg.remove();
+    } else {
+      const notTheCorrectButton = document.createElement('div');
+      notTheCorrectButton.classList.add('error-message');
+      notTheCorrectButton.innerHTML =
+        '<h3>No puedes darme eso en este momento!!</h3>';
+      document.body.appendChild(notTheCorrectButton);
+    }
   });
 
   buttonBarDrink.addEventListener('click', function () {
-    const getPreElement = document.getElementsByTagName('pre')[0];
+    const errorElementMsg = document.getElementsByClassName('error-message')[0];
 
-    getPreElement.textContent = `
-                (-.o)
-              /(Full)\\
-                / \\  
-      `;
-
-    setTimeout(() => {
+    if (currentTamagotchiState === 'heNeedsToDrink') {
+      const getPreElement = document.getElementsByTagName('pre')[0];
       getPreElement.textContent = `
-        (0.o) ??
-       /(🥛)\\
-         / \\
-  `;
-    }, 3000);
+                  (-.o)
+                /(Full)\\
+                  / \\  
+        `;
+      currentTamagotchiState = randomTamagotchiState();
+      if (heNeedsFood) errorElementMsg.remove();
+    } else {
+      const notTheCorrectButton = document.createElement('div');
+      notTheCorrectButton.innerHTML =
+        '<h3>No puedes darme eso en este momento!!</h3>';
+      document.body.appendChild(notTheCorrectButton);
+    }
   });
 
   buttonBarKeepCalm.addEventListener('click', function () {
