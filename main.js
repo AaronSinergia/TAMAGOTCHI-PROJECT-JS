@@ -1,4 +1,5 @@
 let currentTamagotchiState = randomTamagotchiState();
+let continueExecuting = true;
 
 function randomTamagotchiState() {
   const randomNum = Math.random();
@@ -7,38 +8,73 @@ function randomTamagotchiState() {
 
 function changeTamagotchiState() {
   const actions = randomTamagotchiState();
+  const getPreElement = document.getElementsByTagName('pre')[0];
 
+  if (!continueExecuting) {
+    return;
+  }
+
+  // si currentTamagotchiState es exactamente igual que actions
   if (currentTamagotchiState === actions) {
-    currentTamagotchiState = actions;
-
     if (actions === 'heNeedsFood') {
-      heNeedsFood();
+      getPreElement.innerHTML = printChapter('heNeedsFood', true);
     } else {
-      heNeedstoDrink();
+      getPreElement.innerHTML = printChapter('heNeedsToDrink', true);
     }
   }
 }
-
 setInterval(changeTamagotchiState, 1000);
 
-function heNeedsFood() {
-  const getPreElement = document.getElementsByTagName('pre')[0];
+function doSomething(whatHeNeeds) {
+  if (currentTamagotchiState === whatHeNeeds) {
+    const getPreElement = document.getElementsByTagName('pre')[0];
+    getPreElement.textContent = printChapter(whatHeNeeds);
+    currentTamagotchiState = randomTamagotchiState();
 
-  getPreElement.textContent = `
-          (0.o) ??
-         /(🥓)\\
-           / \\
-  `;
+    const errorElementMsg = document.getElementsByClassName('error-message')[0];
+    if (heNeedstoDrink) errorElementMsg.remove();
+  } else {
+    const notTheCorrectButton = document.createElement('div');
+    notTheCorrectButton.className = 'error-message';
+    notTheCorrectButton.innerHTML =
+      '<h3>(No puedes darme eso en este momento!!)</h3>';
+    document.body.appendChild(notTheCorrectButton);
+    setTimeout(() => {
+      notTheCorrectButton.remove();
+    }, 2000);
+  }
 }
 
-function heNeedstoDrink() {
-  const getPreElement = document.getElementsByTagName('pre')[0];
-
-  getPreElement.textContent = `
-            (o.0) ??
-           /(🥛)\\
-             / \\
-    `;
+function printChapter(whatHeNeeds, heReallyNeeds) {
+  if (whatHeNeeds === 'heNeedsFood') {
+    if (heReallyNeeds) {
+      return `
+   (0.o) ??
+  /(🥓)\\
+    / \\
+  `;
+    } else {
+      return `
+    (o.-)
+  /(Full)\\
+    / \\  
+          `;
+    }
+  } else {
+    if (heReallyNeeds) {
+      return `
+    (o.0) ??
+  /(🥛)\\
+    / \\
+      `;
+    } else {
+      return `
+    (-.0)
+  /(Full)\\
+    / \\  
+          `;
+    }
+  }
 }
 
 const optionsBar = () => {
@@ -60,55 +96,24 @@ const optionsBar = () => {
   optionsDiv.appendChild(buttonBarDrink);
   optionsDiv.appendChild(buttonBarKeepCalm);
 
-  buttonBarEat.addEventListener('click', function () {
-    const errorElementMsg = document.getElementsByClassName('error-message')[0];
-    if (currentTamagotchiState === 'heNeedsFood') {
-      const getPreElement = document.getElementsByTagName('pre')[0];
-      getPreElement.textContent = `
-                  (o.-)
-                /(Full)\\
-                  / \\  
-        `;
-      currentTamagotchiState = randomTamagotchiState();
-      if (heNeedstoDrink) errorElementMsg.remove();
-    } else {
-      const notTheCorrectButton = document.createElement('div');
-      notTheCorrectButton.classList.add('error-message');
-      notTheCorrectButton.innerHTML =
-        '<h3>No puedes darme eso en este momento!!</h3>';
-      document.body.appendChild(notTheCorrectButton);
-    }
-  });
+  // BOTON DAR COMIDA
+  buttonBarEat.addEventListener('click', () => doSomething('heNeedsFood'));
 
-  buttonBarDrink.addEventListener('click', function () {
-    const errorElementMsg = document.getElementsByClassName('error-message')[0];
+  // BOTON DAR BEBIDA
+  buttonBarDrink.addEventListener('click', () => doSomething('heNeedsToDrink'));
 
-    if (currentTamagotchiState === 'heNeedsToDrink') {
-      const getPreElement = document.getElementsByTagName('pre')[0];
-      getPreElement.textContent = `
-                  (-.o)
-                /(Full)\\
-                  / \\  
-        `;
-      currentTamagotchiState = randomTamagotchiState();
-      if (heNeedsFood) errorElementMsg.remove();
-    } else {
-      const notTheCorrectButton = document.createElement('div');
-      notTheCorrectButton.innerHTML =
-        '<h3>No puedes darme eso en este momento!!</h3>';
-      document.body.appendChild(notTheCorrectButton);
-    }
-  });
-
+  // BOTON DAR MUERTE
   buttonBarKeepCalm.addEventListener('click', function () {
     const getPreElement = document.getElementsByTagName('pre')[0];
 
     getPreElement.textContent = `
-                  (-.-) 
-                /(🔪)\\
-                / \\
+    (-.-) 
+  /(🔪)\\
+  / \\
       `;
+    continueExecuting = false;
   });
+
   document.body.appendChild(optionsDiv);
 };
 
